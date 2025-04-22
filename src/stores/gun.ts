@@ -13,9 +13,14 @@ export const useGunStore = defineStore('gun_db', () => {
 
     // Singleton Gun instance and note reference
     let gunInstance: IGunInstance<any> | null = null;
-    let note_instance: IGunChain<any, IGunInstance<any>, IGunInstance<any>, "shared_notes_sai_notepad"> | undefined = undefined;
+    let note_instance: IGunChain<any, IGunInstance<any>, IGunInstance<any>, any> | undefined = undefined;
 
     function init() {
+        let user_pass = localStorage.getItem("userpass_sai_note") || ""
+        if(user_pass == ""){
+            return 
+        }
+
         if (!gunInstance) {
             gunInstance = Gun({
                 peers: ['https://gun-manhattan.herokuapp.com/gun']
