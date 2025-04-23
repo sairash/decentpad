@@ -45,8 +45,12 @@ import CodeBlockComponent from '@/components/CodeBlock.vue'
 import { onMounted, watch } from 'vue'
 
 
-const prop = defineProps<{
-    value: string,
+import { useShareStore } from "@/stores/share";
+
+const shareStore = useShareStore();
+
+
+defineProps<{
     showDialog: boolean
 }>()
 
@@ -116,7 +120,7 @@ const editorInstance = useEditor({
 
 
 onMounted(async()=>{
-  editorInstance.value?.commands.setContent(JSON.parse(prop.value))
+  editorInstance.value?.commands.setContent(shareStore.shareBuffer)
 })
 
 
@@ -131,8 +135,8 @@ function update() {
     emit("close")
 }
 
-watch(()=> prop.value, (newVal) =>{ 
-  editorInstance.value?.commands.setContent(JSON.parse(newVal))
+watch(()=>shareStore.shareBuffer, (newVal) =>{ 
+  editorInstance.value?.commands.setContent(newVal)
 })
 
 </script>

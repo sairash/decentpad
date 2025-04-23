@@ -211,11 +211,12 @@
 
     <EditorContent v-if="shared == ''" class="flex-1 overflow-y-auto py-2 style-1" :editor="editorInstance" />
 
-    <ShareTipTapComponent v-else :value="shared_note_value" :show-dialog="showStartEditingDialog"
+    <ShareTipTapComponent v-else :show-dialog="showStartEditingDialog"
       @close="showStartEditingDialog = false" @update="replaceWithSharedData" />
 
     <HelpDialog v-if="showHelpDialog" :show="showHelpDialog" @close="showHelpDialog = false" />
-    <ShareDialog v-if="showShareDialog" :entries="entries" :loading="loading" @store_entry="store_entry" @delete_entry="delete_entry" :show="showShareDialog" @open_shared_file="openSharedFile"
+    
+    <ShareDialog v-if="showShareDialog" :shared_url_current="shared"  @store_entry="store_entry" @delete_entry="delete_entry" :show="showShareDialog" @open_shared_file="openSharedFile"
       @close="showShareDialog = false"
       :text-data="(editorInstance?.getText().substring(0, 50) || ' ').replace(/\s+/g, ' ')"
       :jsondata="JSON.stringify(editorInstance?.getJSON()) || ' '" />
@@ -325,9 +326,9 @@ import { all, createLowlight } from 'lowlight'
 import CodeBlockComponent from '@/components/CodeBlock.vue'
 import ShareDialog from './ShareDialog.vue'
 import ShareTipTapComponent from './ShareTipTapComponent.vue'
-import { useGunStore } from "@/stores/gun";
+import { useShareStore } from "@/stores/share";
 
-const { entries, loading ,getEntryById, storeEntry, deleteEntry } = useGunStore();
+const shareStore = useShareStore();
 
 
 // create a lowlight instance
@@ -350,7 +351,6 @@ const showStartEditingDialog = ref<boolean>(false)
 
 
 const shared = ref("")
-const shared_note_value = ref('{"type": "doc", "content": []}')
 
 
 const editorInstance = useEditor({
@@ -530,8 +530,7 @@ watch(()=> shared.value, async (newVal)=>{
   if(newVal == ""){
         return
   }
-
-  shared_note_value.value = (await getEntryById(newVal))?.body || '{"type": "doc", "content": []}'
+  await shareStore.getEntryById(newVal)
 })
 
 function openSharedFile(id: string) {
@@ -562,11 +561,11 @@ function replaceWithSharedData(sharedCont: JSONContent) {
 }
 
 async function store_entry(random_value: string, md_identifier: string, text_data: string, json_data: string){
-  await storeEntry(random_value, md_identifier, text_data, json_data)
+  await shareStore.storeEntry(random_value, md_identifier, text_data, json_data)
 }
 
 async function delete_entry(id: string){
-  await deleteEntry(id)
+  await shareStore.deleteEntry(id)
 }
 
 </script>

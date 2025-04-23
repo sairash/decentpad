@@ -5,28 +5,32 @@ import { IconCopy, IconTrash, IconSparkles } from "@tabler/icons-vue"
 import { onMounted, ref, watch } from "vue";
 import { sha256 } from 'js-sha256';
 import type Entry from "@/models/Entry";
+import { useRoute } from 'vue-router';
 
-import {useGunStore} from "@/stores/gun"
 
 import { paragraph } from 'txtgen'
 
 import { useToast } from 'vue-toast-notification';
 
+import { useShareStore } from "@/stores/share";
+
+const shareStore = useShareStore();
+
 const $toast = useToast();
-const {init} = useGunStore();
+
+const route = useRoute();
 
 
 const prop = defineProps<{
-    show: boolean
-    textData: string
-    jsondata: string
-    loading: boolean
-    entries: Entry[]
+    show: boolean;
+    textData: string;
+    jsondata: string;
+    shared_url_current: string
 }>()
 
 
 const shared = ref(false);
-const share_url = ref('https://note.sairashgautam.com.np/?share=');
+const share_url = ref(window.location.origin+"?share=");
 const user_pass = ref("");
 const password = ref("");
 
@@ -51,13 +55,6 @@ function share_url_update() {
     share_url.value += random_value + "-" + md_identifier
 }
 
-function storeEntry(random_value: string, md_identifier: string, text_data: string, json_data: string) {
-    emit("store_entry", random_value, md_identifier, text_data, json_data)
-}
-
-function deleteEntry(id: string) {
-    emit("delete_entry", id)
-}
 
 function share_note() {
     if (prop.textData == ' ' || prop.textData == '') {
@@ -66,8 +63,7 @@ function share_note() {
     }
 
     share_url_update();
-    storeEntry(random_value, md_identifier, prop.textData, prop.jsondata);
-    shared.value = true
+    shareStore.storeEntry(random_value, md_identifier, prop.textData, prop.jsondata);
 
     $toast.default('Successfully generated Share Url', { position: 'top' });
 }
@@ -81,29 +77,31 @@ function copy_share_url() {
 const emit = defineEmits(["close", "open_shared_file", "store_entry", "delete_entry"])
 
 
+function entries_update(entries: Map<string, Entry>){
+    random_value = generateId()
+    shared.value = false
 
-watch(() => prop.loading, (n_data) => {
-    if (!n_data) {
-        md_identifier = sha256(encodeURIComponent(prop.jsondata))
-        random_value = generateId()
+    const ent = Array.from(entries.values());
 
-        console.log(prop.entries)
+    for (let index = 0; index < ent.length; index++) {
+        const element = ent[index];
 
-        for (let index = 0; index < prop.entries.length; index++) {
-            const element = prop.entries[index];
-            if (element.hash == md_identifier) {
-                random_value = element.rand
-                shared.value = true
-                share_url_update();
-                break
-            }
+        if (element.hash == md_identifier) {
+            random_value = element.rand
+            shared.value = true
+            share_url_update();
+            break
         }
     }
-})
 
+}
 
 onMounted(()=>{
     user_pass.value = localStorage.getItem("userpass_sai_note") || ''
+    md_identifier = sha256(encodeURIComponent(prop.jsondata))
+
+
+    entries_update(shareStore.entries)
 })
 
 function random_phrase_generator() {
@@ -111,7 +109,7 @@ function random_phrase_generator() {
 }
 
 function deleteItem(id: string) {
-    deleteEntry(id)
+    shareStore.deleteEntry(id)
     $toast.default('Deleted Shared Note Successfully', { position: 'top' });
 }
 
@@ -121,9 +119,19 @@ function save_userpass(){
         return 
     }
 
-    localStorage.setItem("userpass_sai_note", sha256(password.value));
-    init();
+    user_pass.value = sha256(password.value)
+
+    localStorage.setItem("userpass_sai_note", user_pass.value);
+    // init share
+    shareStore.init();
+
 }
+
+
+watch(shareStore.entries, (new_val)=>{
+    entries_update(new_val)
+})
+
 </script>
 
 <template>
@@ -146,60 +154,51 @@ function save_userpass(){
                 </div>
             </div>
             <div class="share_thing" v-else>
-                <div class="pt-5 pb-16  text-gray-500" v-if="loading">
-                    <div class="text-lg font-bold">Loading please wait...</div>
-                    <small>Connecting to Decentralized net!</small>
+                <div class="mb-4">
+                    <div class="text-sm font-bold">Share:</div>
+                    <button
+                        class="rounded-md bg-[#3e63dd] hover:bg-[#5c73e7] w-full  mt-2 px-4 py-3 text-sm font-medium cursor-pointer"
+                        v-on:click="share_note()" v-if="!shared"> Share Note (Decentralized)</button>
+                    <div class="flex justify-center rounded bg-zinc-800 mt-4 w-full" v-else>
+                        <div class="py-2 px-1 w-full overflow-x-auto overflow-hidden whitespace-nowrap style-2">
+                            {{ share_url }}
+                        </div>
+                        <div class="bg-zinc-700 hover:bg-zinc-600 text-white text-left rounded-r"
+                            v-on:click="copy_share_url()">
+                            <button class="pt-2 px-4 cursor-pointer" aria-label="Copy To Clipboard">
+                                <IconCopy class="w-6 h-6" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
-                <div v-else>
-                    <div class="mb-4">
-                        <div class="text-sm font-bold">Share:</div>
-                        <button
-                            class="rounded-md bg-[#3e63dd] hover:bg-[#5c73e7] w-full  mt-2 px-4 py-3 text-sm font-medium cursor-pointer"
-                            v-on:click="share_note()" v-if="!shared"> Share Note (Decentralized)</button>
-                        <div class="flex justify-center rounded bg-zinc-800 mt-4 w-full" v-else>
-                            <div class="py-2 px-1 w-full overflow-x-auto overflow-hidden whitespace-nowrap style-2">
-                                {{ share_url }}
-                            </div>
-                            <div class="bg-zinc-700 hover:bg-zinc-600 text-white text-left rounded-r"
-                                v-on:click="copy_share_url()">
-                                <button class="pt-2 px-4 cursor-pointer" aria-label="Copy To Clipboard">
-                                    <IconCopy class="w-6 h-6" />
-                                </button>
-                            </div>
+                <details class="text-sm text-gray-400 cursor-pointer">
+                    <summary>What is sharing in Decentralized way?</summary>
+                    <p class="cursor-default">This application doesn't have a backend or a database. Instead, it
+                        uses
+                        your
+                        browser to store data and sockets to share your notes with others. This means there are
+                        several
+                        limitations (for example, if your browser is not active at the time of sharing it will simply not work). This setup makes it very private, with data being
+                        offline
+                        first. However, once the data is shared with others, they can share it further.</p>
+                </details>
+                <div class="mt-4 text-sm font-bold">Previously shared Notes:</div>
+                <div
+                    class="previously-shared bg-zinc-800 w-full h-52 mt-2 rounded overflow-y-auto overflow-x-hidden style-1">
+                    <div v-for="entry in shareStore.entries.values()" :key="entry.id"
+                        class="notes m-2 rounded cursor-pointer  flex" :class="shared_url_current == entry.id? 'bg-[#3e63dd] hover:bg-[#5c73e7]': 'hover:bg-zinc-600 bg-zinc-700 '">
+                        <div class="w-full p-2" @click="openSharedFile(entry.id)">
+                            <h3 class="">{{ entry.title.replace(/\s+/g, ' ').trim() }}</h3>
+                            <small :class="shared_url_current != entry.id? 'text-gray-400':'text-gray-200'">Created At: {{ entry.createdAt }}</small>
+                            <small class="pl-2" :class="shared_url_current != entry.id? 'text-gray-400':'text-gray-200'">Source: <span class="font-bold">{{ entry.user_pass == user_pass? 'You': 'Others' }}</span></small>
+                        </div>
+                        <div class="grid items-center pr-2">
+                            <IconTrash class="p-2 rounded bg-red-700 hover:bg-red-600 w-10 h-10"
+                                @click="deleteItem(entry.id)" />
                         </div>
                     </div>
-                    <details class="text-sm text-gray-400 cursor-pointer">
-                        <summary>What is sharing in Decentralized way?</summary>
-                        <p class="cursor-default">This application doesn't have a backend or a database. Instead, it
-                            uses
-                            your
-                            browser to store data and WebRTC to share your notes with others. This means there are
-                            several
-                            limitations (for example, if your browser is not active at the time of sharing excluding
-                            some
-                            buffer
-                            time enabled it will simply not work). This setup makes it very private, with data being
-                            offline
-                            first. However, once the data is shared with others, they can share it further.</p>
-                    </details>
-                    <div class="mt-4 text-sm font-bold">Previously shared Notes:</div>
-                    <div
-                        class="previously-shared bg-zinc-800 w-full h-52 mt-2 rounded overflow-y-auto overflow-x-hidden style-1">
-                        <div v-for="entry in entries" :key="entry.id"
-                            class="notes m-2 rounded bg-zinc-700 cursor-pointer hover:bg-zinc-600 flex">
-                            <div class="w-full p-2" @click="openSharedFile(entry.id)">
-                                <h3 class="">{{ entry.title.replace(/\s+/g, ' ').trim() }}</h3>
-                                <small class="text-gray-400">Created At: {{ entry.createdAt }}</small>
-                            </div>
-                            <div class="grid items-center pr-2">
-                                <IconTrash class="p-2 rounded bg-red-700 hover:bg-red-600 w-10 h-10"
-                                    @click="deleteItem(entry.id)" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pt-10">
-                    </div>
+                </div>
+                <div class="pt-10">
                 </div>
             </div>
             <div class="mt-10 text-right">

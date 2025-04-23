@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { useGunStore } from './stores/gun';
+import { useShareStore } from './stores/share';
 import { onMounted } from 'vue';
 
 
-const gunStore = useGunStore()
+const share = useShareStore()
 
 onMounted(async ()=>{
-  await gunStore.init()
+  await share.init()
 })
 </script>
 
