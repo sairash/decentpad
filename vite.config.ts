@@ -17,7 +17,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.ico'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        maximumFileSizeToCacheInBytes: 2597152,
       }, 
       manifest: {
         name: 'Notepad',
