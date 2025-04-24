@@ -63,7 +63,7 @@
 }
 
 .blog table th {
-    @apply bg-blue-100;
+    @apply bg-[rgba(168,177,255,0.267)];
 }
 
 .blog .tableWrapper {
