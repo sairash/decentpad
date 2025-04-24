@@ -28,9 +28,9 @@ const prop = defineProps<{
     shared_url_current: string
 }>()
 
-
+const default_url = window.location.origin+"?share=";
 const shared = ref(false);
-const share_url = ref(window.location.origin+"?share=");
+const share_url = ref(default_url);
 const user_pass = ref("");
 const password = ref("");
 
@@ -52,7 +52,7 @@ function generateId(): string {
 
 
 function share_url_update() {
-    share_url.value += random_value + "-" + md_identifier
+    share_url.value = default_url+random_value + "-" + md_identifier
 }
 
 
@@ -140,7 +140,7 @@ watch(shareStore.entries, (new_val)=>{
             <div class="before_share pb-7" v-if="user_pass == ''">
                 <div class="text-gray-400">
                     Please use a secret phrase before share feature. This is done to keep the shared notes private and
-                    also help get old data (if present in decentralized net).
+                    also help get old data (if present with peers in the decentralized net).
                 </div>
                 <div class="text-sm text-red-300 mt-6 ">Remeber this phrase, It can't be recoverd later on.</div>
                 <div class="flex w-full ">

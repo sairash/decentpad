@@ -21,9 +21,9 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 2597152,
       }, 
       manifest: {
-        name: 'Notepad',
-        short_name: 'Notepad',
-        description: 'Best applicaiton to take notes on.',
+        name: 'notepeer',
+        short_name: 'notepeer',
+        description: 'Best applicaiton to take notes on with decentralized sharing.',
         theme_color: '#3e63dd',
         icons: [
           {

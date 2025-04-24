@@ -45,7 +45,8 @@ export const useShareStore = defineStore('share_mqtt', () => {
                 // Sending note
                 let note = localStorage.getItem(`${id}_${topic}`)
 
-                if (note == undefined) return
+
+                if (note == undefined || current_share_id.value == share_id) return
 
                 const sm: ShareMessage = {
                     id: id,
@@ -97,7 +98,7 @@ export const useShareStore = defineStore('share_mqtt', () => {
         localStorage.setItem(`${id}_${topic}`, body)
         update_shared_localstorage()
 
-        // client.subscribe(`${id}_${topic}`);
+        client.value?.subscribe(`${id}_${topic}`);
     }
 
     async function getEntryById(id: string) {
@@ -158,8 +159,8 @@ export const useShareStore = defineStore('share_mqtt', () => {
         }
 
 
+
         client.value.on("message", async function (received_topic, message) {
-            console.log("message",message.toString())
             let message_interface = JSON.parse((await decrypt(message.toString(), topic))) as ShareMessage;
             await mqtt_operations(message_interface.op, message_interface.id, received_topic, message_interface.message, message_interface.share_id)
         });

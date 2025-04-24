@@ -2,7 +2,7 @@
   <div id="tiptap" class="divide-gray-400 h-screen w-screen flex flex-col overflow-hidden p-2">
     <div class="p-2 flex justify-between">
       <div class="text-[#a8b1ff] cursor-default flex gap-0.5">
-        <RouterLink to="/" class="logo-link">Notepad</RouterLink>
+        <RouterLink to="/" class="logo-link">notepeer</RouterLink>
         <IconPencilBolt class="h-6 w-6" />
       </div>
       <div class="flex gap-2">
@@ -201,7 +201,7 @@
 
       <div class="block  p-2 ">
         <div class="bg-[#3e63dd] hover:bg-[#5c73e7] bg-opacity-80 p-1 rounded">
-          <a href="https://github.com/sairash/notepad" style="color: oklch(92% 0.004 286.32) !important;" target="_blank"
+          <a href="https://github.com/sairash/notepeer" style="color: oklch(92% 0.004 286.32) !important;" target="_blank"
             rel="noopener noreferrer">
             <IconBrandGithub class="w-6 h-6" />
           </a>
