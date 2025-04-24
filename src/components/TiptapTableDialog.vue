@@ -4,7 +4,7 @@
         <div class="flex flex-col space-y-5">
           <div class="flex flex-row space-x-5">
             <InputContainer class="w-full flex-1">
-              <Label for="input-table-columns">Kolom</Label>
+              <Label for="input-table-columns">Columns</Label>
               <Input
                 v-model="inputColumnsRef"
                 id="input-table-columns"
@@ -15,7 +15,7 @@
               />
             </InputContainer>
             <InputContainer class="w-full flex-1">
-              <Label for="input-table-rows">Baris</Label>
+              <Label for="input-table-rows">Rows</Label>
               <Input
                 v-model="inputRowsRef"
                 id="input-table-rows"
