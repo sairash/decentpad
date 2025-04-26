@@ -234,6 +234,8 @@
     <TiptapLinkDialog v-if="showAddImageDialog" :show="showAddImageDialog" dialog-title="Add Image Link"
       @update="insertImage" @close="showAddImageDialog = false" />
 
+    <Audio />
+
   </div>
 </template>
 
@@ -245,6 +247,8 @@ import 'vue-toast-notification/dist/theme-sugar.css';
 
 import { onBeforeUnmount, onMounted, ref, watch } from "vue"
 import {useToast} from 'vue-toast-notification';
+
+import Audio from './Audio.vue';
 
 import { EditorContent, useEditor, VueNodeViewRenderer, type JSONContent } from "@tiptap/vue-3"
 import type DataTable from "@/models/table"
@@ -275,7 +279,7 @@ import {
   IconListCheck,
   IconBrandGithub,
   IconArrowLeft,
-  IconEdit
+  IconEdit,
 } from "@tabler/icons-vue"
 
 import HelpDialog from "@/components/HelpDialog.vue"
