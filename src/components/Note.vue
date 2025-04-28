@@ -15,31 +15,42 @@
             Viewing Shared File
           </div>
         </div>
-        <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer"
-          @click="showFileOperationDialog = true">
-          <IconFile class="h-5 w-5" />
-        </button>
-        
-        <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer" @click="showShareDialog = true">
-          <IconShare2 class="h-5 w-5" />
-        </button>
+        <Popper content="File" arrow="true" hover="true">
+          <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer"
+            @click="showFileOperationDialog = true">
+            <IconFile class="h-5 w-5" />
+          </button>
+        </Popper>
 
-        <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer" @click="showHelpDialog = true">
-          <IconQuestionMark class="h-5 w-5" />
-        </button>
+        <Popper content="Share" arrow="true" hover="true">
+          <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer" @click="showShareDialog = true">
+            <IconShare2 class="h-5 w-5" />
+          </button>
+        </Popper>
+
+        <Popper content="Help" arrow="true" hover="true">
+          <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer" @click="showHelpDialog = true">
+            <IconQuestionMark class="h-5 w-5" />
+          </button>
+        </Popper>
       </div>
     </div>
     <div id="tiptap-toolbar" class="bg-zinc-900  mb-2 w-full flex">
-      <div class="divide-x divide-gray-400 w-full overflow-x-auto overflow-hidden whitespace-nowrap style-2" v-if="shared == ''">
+      <div class="divide-x divide-gray-400 w-full overflow-x-auto overflow-hidden whitespace-nowrap style-2"
+        v-if="shared == ''">
         <TiptapToolbarGroup>
-          <TiptapToolbarButton label="Undo" @click="editorInstance?.chain().focus().undo().run()"
-            :disabled="!editorInstance?.can().chain().focus().undo().run()">
-            <IconArrowBackUp class="h-5 w-5" />
-          </TiptapToolbarButton>
-          <TiptapToolbarButton label="Redo" @click="editorInstance?.chain().focus().redo().run()"
-            :disabled="!editorInstance?.can().chain().focus().redo().run()">
-            <IconArrowForwardUp class="h-5 w-5" />
-          </TiptapToolbarButton>
+          <Popper content="Undo" placement="bottom" arrow="true" hover="true">
+            <TiptapToolbarButton label="Undo" @click="editorInstance?.chain().focus().undo().run()"
+              :disabled="!editorInstance?.can().chain().focus().undo().run()">
+              <IconArrowBackUp class="h-5 w-5" />
+            </TiptapToolbarButton>
+          </Popper>
+          <Popper content="Redo" placement="bottom" arrow="true" hover="true">
+            <TiptapToolbarButton label="Redo" @click="editorInstance?.chain().focus().redo().run()"
+              :disabled="!editorInstance?.can().chain().focus().redo().run()">
+              <IconArrowForwardUp class="h-5 w-5" />
+            </TiptapToolbarButton>
+          </Popper>
         </TiptapToolbarGroup>
         <TiptapToolbarGroup>
           <TiptapToolbarButton label="Heading 1" :is-active="editorInstance?.isActive('heading', { level: 1 })" @click="
@@ -174,12 +185,15 @@
           </TiptapToolbarButton>
         </TiptapToolbarGroup>
         <TiptapToolbarGroup>
-          <TiptapToolbarButton label="Clear Format" @click="clearFormatting()">
-            <IconClearFormatting class="w-5 h-5" />
-          </TiptapToolbarButton>
+          <Popper content="Clear Format" placement="bottom" arrow="true" hover="true">
+            <TiptapToolbarButton label="Clear Format" @click="clearFormatting()">
+              <IconClearFormatting class="w-5 h-5" />
+            </TiptapToolbarButton>
+          </Popper>
         </TiptapToolbarGroup>
       </div>
-      <div class="divide-x divide-gray-400 flex w-full overflow-x-auto overflow-hidden whitespace-nowrap style-2" v-else>
+      <div class="divide-x divide-gray-400 flex w-full overflow-x-auto overflow-hidden whitespace-nowrap style-2"
+        v-else>
         <TiptapToolbarGroup>
           <button class="text-md py-1 font-bold text-gray-400 cursor-default">
             Reading mode
@@ -201,8 +215,8 @@
 
       <div class="block  p-2 ">
         <div class="bg-[#3e63dd] hover:bg-[#5c73e7] bg-opacity-80 p-1 rounded">
-          <a href="https://github.com/sairash/notepeer" style="color: oklch(92% 0.004 286.32) !important;" target="_blank"
-            rel="noopener noreferrer">
+          <a href="https://github.com/sairash/notepeer" style="color: oklch(92% 0.004 286.32) !important;"
+            target="_blank" rel="noopener noreferrer">
             <IconBrandGithub class="w-6 h-6" />
           </a>
         </div>
@@ -211,16 +225,17 @@
 
     <EditorContent v-if="shared == ''" class="flex-1 overflow-y-auto py-2 style-1" :editor="editorInstance" />
 
-    <ShareTipTapComponent v-else :show-dialog="showStartEditingDialog"
-      @close="showStartEditingDialog = false" @update="replaceWithSharedData" />
+    <ShareTipTapComponent v-else :show-dialog="showStartEditingDialog" @close="showStartEditingDialog = false"
+      @update="replaceWithSharedData" />
 
     <HelpDialog v-if="showHelpDialog" :show="showHelpDialog" @close="showHelpDialog = false" />
-    
-    <ShareDialog v-if="showShareDialog" :shared_url_current="shared"  @store_entry="store_entry" @delete_entry="delete_entry" :show="showShareDialog" @open_shared_file="openSharedFile"
+
+    <ShareDialog v-if="showShareDialog" :shared_url_current="shared" @store_entry="store_entry"
+      @delete_entry="delete_entry" :show="showShareDialog" @open_shared_file="openSharedFile"
       @close="showShareDialog = false"
       :text-data="(editorInstance?.getText().substring(0, 50) || ' ').replace(/\s+/g, ' ')"
       :jsondata="JSON.stringify(editorInstance?.getJSON()) || ' '" />
-      
+
     <FileOperations v-if="showFileOperationDialog" :show="showFileOperationDialog"
       @close="showFileOperationDialog = false" @action="onActionFileOperation" />
 
@@ -234,7 +249,8 @@
     <TiptapLinkDialog v-if="showAddImageDialog" :show="showAddImageDialog" dialog-title="Add Image Link"
       @update="insertImage" @close="showAddImageDialog = false" />
 
-    <Audio />
+
+      <Audio />
 
   </div>
 </template>
@@ -246,7 +262,7 @@ import 'vue-toast-notification/dist/theme-sugar.css';
 
 
 import { onBeforeUnmount, onMounted, ref, watch } from "vue"
-import {useToast} from 'vue-toast-notification';
+import { useToast } from 'vue-toast-notification';
 
 import Audio from './Audio.vue';
 
@@ -451,11 +467,11 @@ function onActionFileOperation(op: number, format: string) {
   // 1 for copy and 2 for download
   switch (op) {
     case 1:
-      $toast.default('Copied To Clipboard', {position: 'top'});
+      $toast.default('Copied To Clipboard', { position: 'top' });
       navigator.clipboard.writeText(text_to_perferom_op)
       break;
     case 2:
-      $toast.default('Downloading file', {position: 'top'});
+      $toast.default('Downloading file', { position: 'top' });
       saveAsFile(text_to_perferom_op, format)
       break;
     default:
@@ -485,7 +501,7 @@ function updateLink(value: LinkType) {
 }
 
 function insertImage(value: LinkType) {
-  editorInstance.value?.chain().focus().setImage({ src: value.Url, alt: value.Name}).run()
+  editorInstance.value?.chain().focus().setImage({ src: value.Url, alt: value.Name }).run()
 }
 
 function insertYoutubeVideo(url: string) {
@@ -530,9 +546,9 @@ watch(() => route.query.share, (newVal) => {
   shared.value = newVal as string || ""
 })
 
-watch(()=> shared.value, async (newVal)=>{
-  if(newVal == ""){
-        return
+watch(() => shared.value, async (newVal) => {
+  if (newVal == "") {
+    return
   }
   await shareStore.getEntryById(newVal)
 })
@@ -564,11 +580,11 @@ function replaceWithSharedData(sharedCont: JSONContent) {
 
 }
 
-async function store_entry(random_value: string, md_identifier: string, text_data: string, json_data: string){
+async function store_entry(random_value: string, md_identifier: string, text_data: string, json_data: string) {
   await shareStore.storeEntry(random_value, md_identifier, text_data, json_data)
 }
 
-async function delete_entry(id: string){
+async function delete_entry(id: string) {
   await shareStore.deleteEntry(id)
 }
 
