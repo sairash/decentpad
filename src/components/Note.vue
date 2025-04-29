@@ -15,20 +15,20 @@
             Viewing Shared File
           </div>
         </div>
-        <Popper content="File" arrow="true" hover="true">
+        <Popper content="File" :arrow="true" :hover="true">
           <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer"
             @click="showFileOperationDialog = true">
             <IconFile class="h-5 w-5" />
           </button>
         </Popper>
 
-        <Popper content="Share" arrow="true" hover="true">
+        <Popper content="Share" :arrow="true" :hover="true">
           <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer" @click="showShareDialog = true">
             <IconShare2 class="h-5 w-5" />
           </button>
         </Popper>
 
-        <Popper content="Help" arrow="true" hover="true">
+        <Popper content="Help" :arrow="true" :hover="true">
           <button class="p-1 rounded bg-zinc-800 hover:bg-zinc-700 cursor-pointer" @click="showHelpDialog = true">
             <IconQuestionMark class="h-5 w-5" />
           </button>
@@ -39,13 +39,13 @@
       <div class="divide-x divide-gray-400 w-full overflow-x-auto overflow-hidden whitespace-nowrap style-2"
         v-if="shared == ''">
         <TiptapToolbarGroup>
-          <Popper content="Undo" placement="bottom" arrow="true" hover="true">
+          <Popper content="Undo" placement="bottom" :arrow="true" :hover="true">
             <TiptapToolbarButton label="Undo" @click="editorInstance?.chain().focus().undo().run()"
               :disabled="!editorInstance?.can().chain().focus().undo().run()">
               <IconArrowBackUp class="h-5 w-5" />
             </TiptapToolbarButton>
           </Popper>
-          <Popper content="Redo" placement="bottom" arrow="true" hover="true">
+          <Popper content="Redo" placement="bottom" :arrow="true" :hover="true">
             <TiptapToolbarButton label="Redo" @click="editorInstance?.chain().focus().redo().run()"
               :disabled="!editorInstance?.can().chain().focus().redo().run()">
               <IconArrowForwardUp class="h-5 w-5" />
@@ -185,7 +185,7 @@
           </TiptapToolbarButton>
         </TiptapToolbarGroup>
         <TiptapToolbarGroup>
-          <Popper content="Clear Format" placement="bottom" arrow="true" hover="true">
+          <Popper content="Clear Format" placement="bottom" :arrow="true" :hover="true">
             <TiptapToolbarButton label="Clear Format" @click="clearFormatting()">
               <IconClearFormatting class="w-5 h-5" />
             </TiptapToolbarButton>
@@ -250,7 +250,21 @@
       @update="insertImage" @close="showAddImageDialog = false" />
 
 
-      <Audio />
+    <Audio />
+
+    <MenuView v-if="show_menu" :value="menu_window_position" @close="show_menu = false">
+      <div class="w-94 h-94 rounded bg-zinc-700 p-2 text-white overflow-none flex flex-col">
+        <div class="w-full flex gap-2 h-10">
+          <input type="text" class="w-full h-10 bg-zinc-500 rounded text-white menu px-2" v-model="command_menu" placeholder="Command">
+          <button class="bg-zinc-200 rounded p-2 text-black cursor-pointer hover:bg-zinc-300" @click="show_menu = false">Close</button>
+        </div>
+        <div class="h-full mt-5 overflow-y-auto">
+          <div class="bg-zinc-500 font-bold py-1.5 px-2 rounded w-full mt-2">
+            Oopsies, You found a secret! (I am working on it)<br> Command shortcuts will be coming soon...
+          </div>
+        </div>
+      </div>
+    </MenuView>
 
   </div>
 </template>
@@ -261,12 +275,15 @@ import 'highlight.js/styles/pojoaque.min.css'
 import 'vue-toast-notification/dist/theme-sugar.css';
 
 
-import { onBeforeUnmount, onMounted, ref, watch } from "vue"
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue"
 import { useToast } from 'vue-toast-notification';
 
 import Audio from './Audio.vue';
 
 import { EditorContent, useEditor, VueNodeViewRenderer, type JSONContent } from "@tiptap/vue-3"
+
+import { type Editor } from "@tiptap/core"
+
 import type DataTable from "@/models/table"
 import {
   IconArrowBackUp,
@@ -347,6 +364,7 @@ import CodeBlockComponent from '@/components/CodeBlock.vue'
 import ShareDialog from './ShareDialog.vue'
 import ShareTipTapComponent from './ShareTipTapComponent.vue'
 import { useShareStore } from "@/stores/share";
+import MenuView from './MenuView.vue';
 
 const shareStore = useShareStore();
 
@@ -368,6 +386,17 @@ const showHelpDialog = ref<boolean>(false)
 const showFileOperationDialog = ref<boolean>(false)
 const showShareDialog = ref<boolean>(false)
 const showStartEditingDialog = ref<boolean>(false)
+
+const command_menu = ref("")
+
+
+const show_menu = ref(false);
+const menu_window_position = ref({
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+})
 
 
 const shared = ref("")
@@ -432,14 +461,46 @@ const editorInstance = useEditor({
       .configure({ lowlight }),
   ],
   onUpdate: ({ editor }) => {
+    const text = getCurrentWord(editor)
+    if (text.startsWith("/")) {
+      show_menu.value = true
+      command_menu.value = text.substring(1)
+      update_cursor_position()
+
+    } else {
+      show_menu.value = false
+    }
+
     localStorage.setItem('notes-content', JSON.stringify(editor.getJSON()))
   },
   editable: true
 })
 
+function getCurrentWord(editor: Editor): string {
+  const { state } = editor;
+  const { from } = state.selection;
+  const $from = state.doc.resolve(from);
+  const parent = $from.parent;
+
+  if (!parent.type.isTextblock) return '';
+
+  const text = parent.textContent;
+  const posInParent = from - $from.start();
+
+  let start = posInParent;
+  let end = posInParent;
+
+  const isWordChar = (char: string) => /[\w/]/.test(char);
+
+  while (start > 0 && isWordChar(text[start - 1])) start--;
+
+  while (end < text.length && isWordChar(text[end])) end++;
+
+  return text.slice(start, end);
+}
+
 
 function saveAsFile(string_to_save: string, format: string) {
-
   const blob = new Blob([string_to_save], { type: 'text/plain' })
   const url = window.URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -524,10 +585,24 @@ function insertTable(table: DataTable) {
     .run()
 }
 
-
+function update_cursor_position(){
+  menu_window_position.value = editorInstance.value?.view.coordsAtPos(editorInstance.value?.state.selection.from) || {
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  }
+}
 
 onMounted(async () => {
   shared.value = route.query.share as string | undefined || ""
+  window.addEventListener('resize', update_cursor_position)
+})
+
+
+onBeforeUnmount(() => {
+  editorInstance.value?.destroy()
+  window.removeEventListener('resize', update_cursor_position)
 })
 
 
@@ -538,9 +613,6 @@ function clearFormatting() {
     .run()
 }
 
-onBeforeUnmount(() => {
-  editorInstance.value?.destroy()
-})
 
 watch(() => route.query.share, (newVal) => {
   shared.value = newVal as string || ""

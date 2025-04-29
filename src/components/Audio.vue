@@ -64,49 +64,49 @@ const option_visible = ref(false);
 <template>
     <div class="fixed pl-10 py-5 pr-5 right-0 bottom-0" v-on:mouseleave="option_visible = false">
         <div class="mb-4 flex flex-col gap-3" v-if="option_visible">
-            <Popper content="Forest" placement="left" arrow="true" hover="true">
+            <Popper content="Forest" placement="left" :arrow="true" :hover="true">
                 <button class="cursor-pointer opacity-60 hover:opacity-100 rounded-full p-4.5 transition-colors"
                     :class="isPlaying.forest ? 'bg-[#5c73e7]' : 'opacity-60 bg-zinc-700 hover:bg-zinc-600 '"
                     @click="forest_audio.paused ? forest_audio.play() : forest_audio.pause()">
                     <IconTrees class="w-6 h-6" />
                 </button>
             </Popper>
-            <Popper content="Wind" placement="left" arrow="true" hover="true">
+            <Popper content="Wind" placement="left" :arrow="true" :hover="true">
                 <button class="cursor-pointer opacity-60 hover:opacity-100 rounded-full p-4.5 transition-colors"
                     :class="isPlaying.wind ? 'bg-[#5c73e7]' : 'opacity-60 bg-zinc-700 hover:bg-zinc-600 '"
                     @click="wind_audio.paused ? wind_audio.play() : wind_audio.pause()">
                     <IconWind class="w-6 h-6" />
                 </button>
             </Popper>
-            <Popper content="Campfire" placement="left" arrow="true" hover="true">
+            <Popper content="Campfire" placement="left" :arrow="true" :hover="true">
                 <button class="cursor-pointer opacity-60 hover:opacity-100 rounded-full p-4.5 transition-colors"
                     :class="isPlaying.campfire ? 'bg-[#5c73e7]' : 'bg-zinc-700 hover:bg-zinc-600 '"
                     @click="campfire_audio.paused ? campfire_audio.play() : campfire_audio.pause()">
                     <IconCampfire class="w-6 h-6" />
                 </button>
             </Popper>
-            <Popper content="Cafe" placement="left" arrow="true" hover="true">
+            <Popper content="Cafe" placement="left" :arrow="true" :hover="true">
                 <button class="cursor-pointer opacity-60 hover:opacity-100 rounded-full p-4.5 transition-colors"
                     :class="isPlaying.cafe ? 'bg-[#5c73e7]' : 'opacity-60 bg-zinc-700 hover:bg-zinc-600 '"
                     @click="cafe_audio.paused ? cafe_audio.play() : cafe_audio.pause()">
                     <IconCup class="w-6 h-6" />
                 </button>
             </Popper>
-            <Popper content="Stream" placement="left" arrow="true" hover="true">
+            <Popper content="Stream" placement="left" :arrow="true" :hover="true">
                 <button class="cursor-pointer opacity-60 hover:opacity-100 rounded-full p-4.5 transition-colors"
                     :class="isPlaying.stream ? 'bg-[#5c73e7]' : 'opacity-60 bg-zinc-700 hover:bg-zinc-600 '"
                     @click="stream_audio.paused ? stream_audio.play() : stream_audio.pause()">
                     <IconDropletFilled class="w-6 h-6" />
                 </button>
             </Popper>
-            <Popper content="Rain" placement="left" arrow="true" hover="true">
+            <Popper content="Rain" placement="left" :arrow="true" :hover="true">
                 <button class="cursor-pointer opacity-60 hover:opacity-100 rounded-full p-4.5 transition-colors"
                     :class="isPlaying.rain ? 'bg-[#5c73e7]' : 'opacity-60 bg-zinc-700 hover:bg-zinc-600 '"
                     @click="rain_audio.paused ? rain_audio.play() : rain_audio.pause()">
                     <IconCloudFog class="w-6 h-6" />
                 </button>
             </Popper>
-            <Popper content="Storm" placement="left" arrow="true" hover="true">
+            <Popper content="Storm" placement="left" :arrow="true" :hover="true">
                 <button class="cursor-pointer opacity-60 hover:opacity-100 rounded-full p-4.5 transition-colors"
                     :class="isPlaying.storm ? 'bg-[#5c73e7]' : 'opacity-60 bg-zinc-700 hover:bg-zinc-600 '"
                     @click="storm_audio.paused ? storm_audio.play() : storm_audio.pause()">
@@ -114,7 +114,7 @@ const option_visible = ref(false);
                 </button>
             </Popper>
         </div>
-        <Popper content="Zen mode" placement="left" arrow="true" hover="true">
+        <Popper content="Zen mode" placement="left" :arrow="true" :hover="true">
             <button class="p-4 hover:bg-zinc-600 bg-zinc-700 rounded-full cursor-pointer text-white transition-colors"
                 @click="option_visible = !option_visible">
                 <IconBeach class="w-7 h-7" />
